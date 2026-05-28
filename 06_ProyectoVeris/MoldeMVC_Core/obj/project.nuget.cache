@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "2gulBDH71Ak=",
+  "dgSpecHash": "ZZcvRc6b5K0=",
   "success": true,
-  "projectFilePath": "C:\\TEMP\\II Parcial\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj",
+  "projectFilePath": "C:\\TEMP\\CodigosWeb3\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\stali\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\stali\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

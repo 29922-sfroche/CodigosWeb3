@@ -7,9 +7,16 @@ namespace MoldeMVC_Core.Data
     {
         public IMongoCollection<Pacientes> Pacientes { get; }
 
+        public IMongoCollection<Medicos> Medicos { get; }
+
         public VerisMongoContext(IMongoDatabase database)
         {
             Pacientes = database.GetCollection<Pacientes>("pacientes");
+
+            Medicos = database.GetCollection<Medicos>("medicos");
         }
+
+
+
     }
 }

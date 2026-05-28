@@ -11,5 +11,8 @@ namespace MoldeMVC_Core.Data
         {
         }
         public DbSet<MoldeMVC_Core.Models.Pacientes> Pacientes { get; set; } = default!;
+
+        public DbSet<MoldeMVC_Core.Models.Medicos> Medicos { get; set; } = default!;
+
     }
 }
