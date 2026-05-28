@@ -1,7 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MoldeMVC_Core.Models;
 using MoldeMVC_Core.Data;
 
 public class RecetasController : Controller
@@ -27,12 +26,6 @@ public class RecetasController : Controller
     //        return NotFound();
     //    }
 
-    //    var recetas = await _context.Recetas
-    //        .FirstOrDefaultAsync(m => m._id == _id);
-    //    if (recetas == null)
-    //    {
-    //        return NotFound();
-    //    }
 
     //    return View(recetas);
     //}
@@ -143,8 +136,4 @@ public class RecetasController : Controller
     //    return RedirectToAction(nameof(Index));
     //}
 
-    //private bool RecetasExists(string? _id)
-    //{
-    //    return _context.Recetas.Any(e => e._id == _id);
-    //}
 }
