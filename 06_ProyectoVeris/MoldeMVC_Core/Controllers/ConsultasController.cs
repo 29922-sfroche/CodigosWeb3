@@ -4,22 +4,22 @@ using Microsoft.EntityFrameworkCore;
 using MoldeMVC_Core.Models;
 using MoldeMVC_Core.Data;
 
-public class MedicosController : Controller
+public class ConsultasController : Controller
 {
     private readonly VerisMongoContext _context;
 
-    public MedicosController(VerisMongoContext context)
+    public ConsultasController(VerisMongoContext context)
     {
         _context = context;
     }
 
-    //// GET: MEDICOSS
+    //// GET: CONSULTASS
     //public async Task<IActionResult> Index()    
     //{
-    //    return View(await _context.Medicos.ToListAsync());
+    //    return View(await _context.Consultas.ToListAsync());
     //}
 
-    //// GET: MEDICOSS/Details/5
+    //// GET: CONSULTASS/Details/5
     //public async Task<IActionResult> Details(string? _id)
     //{
     //    if (_id == null)
@@ -27,39 +27,39 @@ public class MedicosController : Controller
     //        return NotFound();
     //    }
 
-    //    var medicos = await _context.Medicos
+    //    var consultas = await _context.Consultas
     //        .FirstOrDefaultAsync(m => m._id == _id);
-    //    if (medicos == null)
+    //    if (consultas == null)
     //    {
     //        return NotFound();
     //    }
 
-    //    return View(medicos);
+    //    return View(consultas);
     //}
 
-    //// GET: MEDICOSS/Create
+    //// GET: CONSULTASS/Create
     //public IActionResult Create()
     //{
     //    return View();
     //}
 
-    //// POST: MEDICOSS/Create
+    //// POST: CONSULTASS/Create
     //// To protect from overposting attacks, enable the specific properties you want to bind to.
     //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     //[HttpPost]
     //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> Create([Bind("_id,nombre,especialidadId,foto")] Medicos medicos)
+    //public async Task<IActionResult> Create([Bind("_id,medicoId,pacienteId,fechaConsulta,hi,hf,diagnostico")] Consultas consultas)
     //{
     //    if (ModelState.IsValid)
     //    {
-    //        _context.Add(medicos);
+    //        _context.Add(consultas);
     //        await _context.SaveChangesAsync();
     //        return RedirectToAction(nameof(Index));
     //    }
-    //    return View(medicos);
+    //    return View(consultas);
     //}
 
-    //// GET: MEDICOSS/Edit/5
+    //// GET: CONSULTASS/Edit/5
     //public async Task<IActionResult> Edit(string? _id)
     //{
     //    if (_id == null)
@@ -67,22 +67,22 @@ public class MedicosController : Controller
     //        return NotFound();
     //    }
 
-    //    var medicos = await _context.Medicos.FindAsync(_id);
-    //    if (medicos == null)
+    //    var consultas = await _context.Consultas.FindAsync(_id);
+    //    if (consultas == null)
     //    {
     //        return NotFound();
     //    }
-    //    return View(medicos);
+    //    return View(consultas);
     //}
 
-    //// POST: MEDICOSS/Edit/5
+    //// POST: CONSULTASS/Edit/5
     //// To protect from overposting attacks, enable the specific properties you want to bind to.
     //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     //[HttpPost]
     //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> Edit(string? _id, [Bind("_id,nombre,especialidadId,foto")] Medicos medicos)
+    //public async Task<IActionResult> Edit(string? _id, [Bind("_id,medicoId,pacienteId,fechaConsulta,hi,hf,diagnostico")] Consultas consultas)
     //{
-    //    if (_id != medicos._id)
+    //    if (_id != consultas._id)
     //    {
     //        return NotFound();
     //    }
@@ -91,12 +91,12 @@ public class MedicosController : Controller
     //    {
     //        try
     //        {
-    //            _context.Update(medicos);
+    //            _context.Update(consultas);
     //            await _context.SaveChangesAsync();
     //        }
     //        catch (DbUpdateConcurrencyException)
     //        {
-    //            if (!MedicosExists(medicos._id))
+    //            if (!ConsultasExists(consultas._id))
     //            {
     //                return NotFound();
     //            }
@@ -107,10 +107,10 @@ public class MedicosController : Controller
     //        }
     //        return RedirectToAction(nameof(Index));
     //    }
-    //    return View(medicos);
+    //    return View(consultas);
     //}
 
-    //// GET: MEDICOSS/Delete/5
+    //// GET: CONSULTASS/Delete/5
     //public async Task<IActionResult> Delete(string? _id)
     //{
     //    if (_id == null)
@@ -118,33 +118,33 @@ public class MedicosController : Controller
     //        return NotFound();
     //    }
 
-    //    var medicos = await _context.Medicos
+    //    var consultas = await _context.Consultas
     //        .FirstOrDefaultAsync(m => m._id == _id);
-    //    if (medicos == null)
+    //    if (consultas == null)
     //    {
     //        return NotFound();
     //    }
 
-    //    return View(medicos);
+    //    return View(consultas);
     //}
 
-    //// POST: MEDICOSS/Delete/5
+    //// POST: CONSULTASS/Delete/5
     //[HttpPost, ActionName("Delete")]
     //[ValidateAntiForgeryToken]
     //public async Task<IActionResult> DeleteConfirmed(string? _id)
     //{
-    //    var medicos = await _context.Medicos.FindAsync(_id);
-    //    if (medicos != null)
+    //    var consultas = await _context.Consultas.FindAsync(_id);
+    //    if (consultas != null)
     //    {
-    //        _context.Medicos.Remove(medicos);
+    //        _context.Consultas.Remove(consultas);
     //    }
 
     //    await _context.SaveChangesAsync();
     //    return RedirectToAction(nameof(Index));
     //}
 
-    //private bool MedicosExists(string? _id)
+    //private bool ConsultasExists(string? _id)
     //{
-    //    return _context.Medicos.Any(e => e._id == _id);
+    //    return _context.Consultas.Any(e => e._id == _id);
     //}
 }

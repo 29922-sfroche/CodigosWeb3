@@ -19,4 +19,21 @@ namespace MoldeMVC_Core.Models
         public string foto { get; set; } = default!;
 
     }
-}   
+}
+
+/******************* EJEMPLO DE LA ESTRUCTURA JSON *******************
+    {
+      "_id": {
+        "$oid": "65a300000000000000000301"
+      },
+      "nombre": "Plutarco",
+      "cedula": 1718684408,
+      "edad": 18,
+      "genero": "Masculino",
+      "estatura": 160,
+      "peso": 60,
+      "foto": "usu02.jpg"
+    }
+ * 
+ ***************************************************************************
+ */

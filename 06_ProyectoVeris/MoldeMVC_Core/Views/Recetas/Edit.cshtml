@@ -1,4 +1,4 @@
-@model MoldeMVC_Core.Models.Medicos
+@model MoldeMVC_Core.Models.Recetas
 
 @{
     ViewData["Title"] = "Edit";
@@ -6,7 +6,7 @@
 
 <h1>Edit</h1>
 
-<h4>Medicos</h4>
+<h4>Recetas</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -14,19 +14,19 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="_id" />
             <div class="form-group">
-                <label asp-for="nombre" class="control-label"></label>
-                <input asp-for="nombre" class="form-control" />
-                <span asp-validation-for="nombre" class="text-danger"></span>
+                <label asp-for="consultaId" class="control-label"></label>
+                <input asp-for="consultaId" class="form-control" />
+                <span asp-validation-for="consultaId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="especialidadId" class="control-label"></label>
-                <input asp-for="especialidadId" class="form-control" />
-                <span asp-validation-for="especialidadId" class="text-danger"></span>
+                <label asp-for="medicamentoId" class="control-label"></label>
+                <input asp-for="medicamentoId" class="form-control" />
+                <span asp-validation-for="medicamentoId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="foto" class="control-label"></label>
-                <input asp-for="foto" class="form-control" />
-                <span asp-validation-for="foto" class="text-danger"></span>
+                <label asp-for="cantidad" class="control-label"></label>
+                <input asp-for="cantidad" class="form-control" />
+                <span asp-validation-for="cantidad" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

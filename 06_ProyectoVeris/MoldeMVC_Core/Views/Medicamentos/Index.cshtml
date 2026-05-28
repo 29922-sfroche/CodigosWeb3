@@ -1,4 +1,4 @@
-@model IEnumerable<MoldeMVC_Core.Models.Medicos>
+@model IEnumerable<MoldeMVC_Core.Models.Medicamentos>
 
 @{
     ViewData["Title"] = "Index";
@@ -16,10 +16,7 @@
                 @Html.DisplayNameFor(model => model.nombre)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.especialidadId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.foto)
+                @Html.DisplayNameFor(model => model.tipo)
             </th>
             <th></th>
         </tr>
@@ -31,10 +28,7 @@
                 @Html.DisplayFor(model => item.nombre)
             </td>
             <td>
-                @Html.DisplayFor(model => item.especialidadId)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.foto)
+                @Html.DisplayFor(model => item.tipo)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item._id">Edit</a> |

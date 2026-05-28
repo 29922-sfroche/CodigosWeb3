@@ -1,4 +1,4 @@
-@model MoldeMVC_Core.Models.Medicos
+@model MoldeMVC_Core.Models.Recetas
 
 @{
     ViewData["Title"] = "Details";
@@ -7,28 +7,28 @@
 <h1>Details</h1>
 
 <div>
-    <h4>Medicos</h4>
+    <h4>Recetas</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.nombre)
+            @Html.DisplayNameFor(model => model.consultaId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.nombre)
+            @Html.DisplayFor(model => model.consultaId)
         </dd>
-    
+    </dl>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.especialidadId)
+            @Html.DisplayNameFor(model => model.medicamentoId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.especialidadId)
+            @Html.DisplayFor(model => model.medicamentoId)
         </dd>
-    
+    </dl>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.foto)
+            @Html.DisplayNameFor(model => model.cantidad)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.foto)
+            @Html.DisplayFor(model => model.cantidad)
         </dd>
     </dl>
 </div>

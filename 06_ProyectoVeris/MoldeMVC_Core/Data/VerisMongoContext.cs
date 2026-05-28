@@ -11,6 +11,12 @@ namespace MoldeMVC_Core.Data
 
         public IMongoCollection<Especialidades> Especialidades { get; }
 
+        public IMongoCollection <Consultas> Consultas { get; }
+
+        public IMongoCollection <Medicamentos> Medicamentos { get; }
+
+        public IMongoCollection <Recetas> Recetas { get; }
+
 
         public VerisMongoContext(IMongoDatabase database)
         {
@@ -19,6 +25,12 @@ namespace MoldeMVC_Core.Data
             Medicos = database.GetCollection<Medicos>("medicos");
 
             Especialidades = database.GetCollection<Especialidades>("especialidades");
+
+            Consultas = database.GetCollection<Consultas>("consultas");
+
+            Medicamentos = database.GetCollection<Medicamentos>("medicamentos");
+
+            Recetas = database.GetCollection<Recetas>("recetas");
         }
 
 

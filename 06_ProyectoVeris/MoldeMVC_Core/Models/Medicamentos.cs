@@ -1,21 +1,18 @@
-﻿
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace MoldeMVC_Core.Models
 {
-    public class Especialidades
+    public class Medicamentos
     {
-
         [Key]
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string _id { get; set; } = default!;
-        public string descripcion { get; set; } = default!;
-        public string dias { get; set; } = default!;
-        public string franjaHI { get; set; } = default!;
-        public string franjaHF { get; set; } = default!;
+        public string nombre { get; set; } = default!;
+        public string tipo { get; set; } = default!;
+
 
     }
 }
@@ -23,12 +20,10 @@ namespace MoldeMVC_Core.Models
 /******************* EJEMPLO DE LA ESTRUCTURA JSON *******************
     {
       "_id": {
-        "$oid": "65a300000000000000000001"
+        "$oid": "65a300000000000000000101"
       },
-      "descripcion": "Cardiologia",
-      "dias": "MJV",
-      "franjaHI": "08:00:00",
-      "franjaHF": "12:00:00"
+      "nombre": "Paracetamol",
+      "tipo": "Analgesico"
     }
  * 
  ***************************************************************************
