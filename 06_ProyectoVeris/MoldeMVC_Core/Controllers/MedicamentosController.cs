@@ -1,7 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MoldeMVC_Core.Models;
 using MoldeMVC_Core.Data;
 
 public class MedicamentosController : Controller
@@ -34,8 +33,6 @@ public class MedicamentosController : Controller
     //        return NotFound();
     //    }
 
-    //    return View(medicamentos);
-    //}
 
     //// GET: MEDICAMENTOSS/Create
     //public IActionResult Create()
@@ -143,8 +140,4 @@ public class MedicamentosController : Controller
     //    return RedirectToAction(nameof(Index));
     //}
 
-    //private bool MedicamentosExists(string? _id)
-    //{
-    //    return _context.Medicamentos.Any(e => e._id == _id);
-    //}
 }
