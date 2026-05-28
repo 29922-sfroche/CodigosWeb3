@@ -6,6 +6,7 @@ namespace MoldeMVC_Core.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
+        public DbSet<MoldeMVC_Core.Models.Especialidades> Especialidades { get; set; } = default!;
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\TEMP\\CodigosWeb3\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj": {}
+    "D:\\TEMP\\2.Parcial\\PROYECTO-VERIS-NETCORE\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj": {}
   },
   "projects": {
-    "C:\\TEMP\\CodigosWeb3\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj": {
+    "D:\\TEMP\\2.Parcial\\PROYECTO-VERIS-NETCORE\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\TEMP\\CodigosWeb3\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj",
+        "projectUniqueName": "D:\\TEMP\\2.Parcial\\PROYECTO-VERIS-NETCORE\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj",
         "projectName": "MoldeMVC_Core",
-        "projectPath": "C:\\TEMP\\CodigosWeb3\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj",
-        "packagesPath": "C:\\Users\\stali\\.nuget\\packages\\",
-        "outputPath": "C:\\TEMP\\CodigosWeb3\\06_ProyectoVeris\\MoldeMVC_Core\\obj\\",
+        "projectPath": "D:\\TEMP\\2.Parcial\\PROYECTO-VERIS-NETCORE\\06_ProyectoVeris\\MoldeMVC_Core\\MoldeMVC_Core.csproj",
+        "packagesPath": "C:\\Users\\mauri\\.nuget\\packages\\",
+        "outputPath": "D:\\TEMP\\2.Parcial\\PROYECTO-VERIS-NETCORE\\06_ProyectoVeris\\MoldeMVC_Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\stali\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mauri\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -71,6 +71,8 @@
               "version": "[9.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.16, )"
             },

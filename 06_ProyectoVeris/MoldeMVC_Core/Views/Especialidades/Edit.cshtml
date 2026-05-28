@@ -1,0 +1,49 @@
+@model MoldeMVC_Core.Models.Especialidades
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Especialidades</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="_id" />
+            <div class="form-group">
+                <label asp-for="descripcion" class="control-label"></label>
+                <input asp-for="descripcion" class="form-control" />
+                <span asp-validation-for="descripcion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="dias" class="control-label"></label>
+                <input asp-for="dias" class="form-control" />
+                <span asp-validation-for="dias" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="franjaHI" class="control-label"></label>
+                <input asp-for="franjaHI" class="form-control" />
+                <span asp-validation-for="franjaHI" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="franjaHF" class="control-label"></label>
+                <input asp-for="franjaHF" class="form-control" />
+                <span asp-validation-for="franjaHF" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

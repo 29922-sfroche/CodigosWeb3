@@ -9,11 +9,16 @@ namespace MoldeMVC_Core.Data
 
         public IMongoCollection<Medicos> Medicos { get; }
 
+        public IMongoCollection<Especialidades> Especialidades { get; }
+
+
         public VerisMongoContext(IMongoDatabase database)
         {
             Pacientes = database.GetCollection<Pacientes>("pacientes");
 
             Medicos = database.GetCollection<Medicos>("medicos");
+
+            Especialidades = database.GetCollection<Especialidades>("especialidades");
         }
 
 

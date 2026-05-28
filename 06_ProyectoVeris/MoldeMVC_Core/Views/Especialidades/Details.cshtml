@@ -1,0 +1,45 @@
+@model MoldeMVC_Core.Models.Especialidades
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Especialidades</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.descripcion)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.descripcion)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.dias)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.dias)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.franjaHI)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.franjaHI)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.franjaHF)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.franjaHF)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?._id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
