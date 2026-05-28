@@ -1,0 +1,62 @@
+﻿@model MoldeMVC_Core.Models.Pacientes
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Pacientes</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.nombre)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.nombre)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.cedula)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.cedula)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.edad)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.edad)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.genero)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.genero)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.estatura)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.estatura)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.peso)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.peso)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.foto)
+        </dt>
+        <dd class = "col-sm-10">
+            @* @Html.DisplayFor(model => model.foto) *@
+            <img src="~/img/@Model.foto" alt="Foto de @Model.nombre" style="width:120px; height:120px; object-fit:cover; border-radius:8px;" />
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?._id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

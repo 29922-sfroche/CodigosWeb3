@@ -1,0 +1,596 @@
+// ==========================================================
+// 1. CREAR / USAR BASE DE DATOS
+// ==========================================================
+
+use("ProyectoVeris_MongoBD");
+
+// Limpia la base para cargar diseño y datos desde cero.
+// Si no deseas borrar datos existentes, comenta esta línea.
+db.dropDatabase();
+
+use("ProyectoVeris_MongoBD");
+
+
+// ==========================================================
+// 2. OBJECTID FIJOS PARA CONSERVAR RELACIONES
+// ==========================================================
+
+// Especialidades
+const espCardiologia   = ObjectId("65a300000000000000000001");
+const espPediatria     = ObjectId("65a300000000000000000002");
+const espDermatologia  = ObjectId("65a300000000000000000003");
+const espGinecologia   = ObjectId("65a300000000000000000004");
+const espOftalmologia  = ObjectId("65a300000000000000000005");
+const espProctologo    = ObjectId("65a300000000000000000006");
+
+// Medicamentos
+const medParacetamol = ObjectId("65a300000000000000000101");
+const medAmoxicilina = ObjectId("65a300000000000000000102");
+const medLoratadina  = ObjectId("65a300000000000000000103");
+const medOmeprazol   = ObjectId("65a300000000000000000104");
+const medAspirina    = ObjectId("65a300000000000000000105");
+
+// Médico
+const medicoManotas = ObjectId("65a300000000000000000201");
+
+// Paciente
+const pacientePlutarco = ObjectId("65a300000000000000000301");
+
+// Consultas
+const consulta1 = ObjectId("65a300000000000000000401");
+const consulta2 = ObjectId("65a300000000000000000402");
+const consulta3 = ObjectId("65a300000000000000000403");
+const consulta4 = ObjectId("65a300000000000000000404");
+const consulta5 = ObjectId("65a300000000000000000405");
+const consulta6 = ObjectId("65a300000000000000000406");
+const consulta7 = ObjectId("65a300000000000000000407");
+const consulta8 = ObjectId("65a300000000000000000408");
+
+// Recetas
+const receta1 = ObjectId("65a300000000000000000501");
+const receta2 = ObjectId("65a300000000000000000502");
+const receta3 = ObjectId("65a300000000000000000503");
+const receta4 = ObjectId("65a300000000000000000504");
+
+
+// ==========================================================
+// 3. COLECCIÓN: especialidades
+// ==========================================================
+
+db.createCollection("especialidades", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["_id", "descripcion", "dias", "franjaHI", "franjaHF"],
+      properties: {
+        _id: {
+          bsonType: "objectId",
+          description: "Clave primaria de la especialidad. Debe ser ObjectId."
+        },
+        descripcion: {
+          bsonType: "string"
+        },
+        dias: {
+          bsonType: "string"
+        },
+        franjaHI: {
+          bsonType: "string",
+          description: "Hora de inicio en formato HH:mm:ss."
+        },
+        franjaHF: {
+          bsonType: "string",
+          description: "Hora de fin en formato HH:mm:ss."
+        }
+      }
+    }
+  }
+});
+
+db.especialidades.insertMany([
+  {
+    _id: espCardiologia,
+    descripcion: "Cardiologia",
+    dias: "MJV",
+    franjaHI: "08:00:00",
+    franjaHF: "12:00:00"
+  },
+  {
+    _id: espPediatria,
+    descripcion: "Pediatria",
+    dias: "LMXJV",
+    franjaHI: "08:00:00",
+    franjaHF: "18:00:00"
+  },
+  {
+    _id: espDermatologia,
+    descripcion: "Dermatologia",
+    dias: "MJ",
+    franjaHI: "12:00:00",
+    franjaHF: "18:00:00"
+  },
+  {
+    _id: espGinecologia,
+    descripcion: "Ginecologia",
+    dias: "LXV",
+    franjaHI: "08:00:00",
+    franjaHF: "18:00:00"
+  },
+  {
+    _id: espOftalmologia,
+    descripcion: "Oftalmologia",
+    dias: "LV",
+    franjaHI: "08:00:00",
+    franjaHF: "12:00:00"
+  },
+  {
+    _id: espProctologo,
+    descripcion: "Proctologo",
+    dias: "LM",
+    franjaHI: "08:00:00",
+    franjaHF: "12:00:00"
+  }
+]);
+
+
+// ==========================================================
+// 4. COLECCIÓN: medicamentos
+// ==========================================================
+
+db.createCollection("medicamentos", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["_id", "nombre", "tipo"],
+      properties: {
+        _id: {
+          bsonType: "objectId",
+          description: "Clave primaria del medicamento. Debe ser ObjectId."
+        },
+        nombre: {
+          bsonType: "string"
+        },
+        tipo: {
+          bsonType: "string"
+        }
+      }
+    }
+  }
+});
+
+db.medicamentos.insertMany([
+  {
+    _id: medParacetamol,
+    nombre: "Paracetamol",
+    tipo: "Analgesico"
+  },
+  {
+    _id: medAmoxicilina,
+    nombre: "Amoxicilina",
+    tipo: "Antibiotico"
+  },
+  {
+    _id: medLoratadina,
+    nombre: "Loratadina",
+    tipo: "Antihistaminico"
+  },
+  {
+    _id: medOmeprazol,
+    nombre: "Omeprazol",
+    tipo: "Antiacido"
+  },
+  {
+    _id: medAspirina,
+    nombre: "Aspirina",
+    tipo: "Antiinflamatorio"
+  }
+]);
+
+
+// ==========================================================
+// 5. COLECCIÓN: medicos
+// Se elimina IdUsuario porque pertenecía a Identity/AspNetUsers.
+// ==========================================================
+
+db.createCollection("medicos", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["_id", "nombre", "especialidadId", "foto"],
+      properties: {
+        _id: {
+          bsonType: "objectId",
+          description: "Clave primaria del médico. Debe ser ObjectId."
+        },
+        nombre: {
+          bsonType: "string"
+        },
+        especialidadId: {
+          bsonType: "objectId",
+          description: "Referencia a especialidades._id. Debe ser ObjectId."
+        },
+        foto: {
+          bsonType: "string"
+        }
+      }
+    }
+  }
+});
+
+db.medicos.insertOne({
+  _id: medicoManotas,
+  nombre: "Manotas",
+  especialidadId: espCardiologia,
+  foto: "usu01.jpg"
+});
+
+
+// ==========================================================
+// 6. COLECCIÓN: pacientes
+// Se elimina IdUsuario porque pertenecía a Identity/AspNetUsers.
+// ==========================================================
+
+db.createCollection("pacientes", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["_id", "nombre", "cedula", "edad", "genero", "estatura", "peso", "foto"],
+      properties: {
+        _id: {
+          bsonType: "objectId",
+          description: "Clave primaria del paciente. Debe ser ObjectId."
+        },
+        nombre: {
+          bsonType: "string"
+        },
+        cedula: {
+          bsonType: "int"
+        },
+        edad: {
+          bsonType: "int"
+        },
+        genero: {
+          bsonType: "string"
+        },
+        estatura: {
+          bsonType: "int"
+        },
+        peso: {
+          bsonType: ["double", "int", "decimal"]
+        },
+        foto: {
+          bsonType: "string"
+        }
+      }
+    }
+  }
+});
+
+db.pacientes.insertOne({
+  _id: pacientePlutarco,
+  nombre: "Plutarco",
+  cedula: NumberInt(1718684408),
+  edad: NumberInt(18),
+  genero: "Masculino",
+  estatura: NumberInt(160),
+  peso: 60.0,
+  foto: "usu02.jpg"
+});
+
+
+// ==========================================================
+// 7. COLECCIÓN: consultas
+// IdMedico e IdPaciente ahora son medicoId y pacienteId con ObjectId.
+// ==========================================================
+
+db.createCollection("consultas", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["_id", "medicoId", "pacienteId", "fechaConsulta", "hi", "hf", "diagnostico"],
+      properties: {
+        _id: {
+          bsonType: "objectId",
+          description: "Clave primaria de la consulta. Debe ser ObjectId."
+        },
+        medicoId: {
+          bsonType: "objectId",
+          description: "Referencia a medicos._id. Debe ser ObjectId."
+        },
+        pacienteId: {
+          bsonType: "objectId",
+          description: "Referencia a pacientes._id. Debe ser ObjectId."
+        },
+        fechaConsulta: {
+          bsonType: "date"
+        },
+        hi: {
+          bsonType: "string",
+          description: "Hora de inicio en formato HH:mm:ss."
+        },
+        hf: {
+          bsonType: "string",
+          description: "Hora de fin en formato HH:mm:ss."
+        },
+        diagnostico: {
+          bsonType: "string"
+        }
+      }
+    }
+  }
+});
+
+db.consultas.insertMany([
+  {
+    _id: consulta1,
+    medicoId: medicoManotas,
+    pacienteId: pacientePlutarco,
+    fechaConsulta: ISODate("2023-01-10T00:00:00.000Z"),
+    hi: "09:00:00",
+    hf: "10:00:00",
+    diagnostico: "Presion arterial alta"
+  },
+  {
+    _id: consulta2,
+    medicoId: medicoManotas,
+    pacienteId: pacientePlutarco,
+    fechaConsulta: ISODate("2023-02-15T00:00:00.000Z"),
+    hi: "14:00:00",
+    hf: "15:00:00",
+    diagnostico: "Papiloma Humano"
+  },
+  {
+    _id: consulta3,
+    medicoId: medicoManotas,
+    pacienteId: pacientePlutarco,
+    fechaConsulta: ISODate("2023-03-20T00:00:00.000Z"),
+    hi: "12:00:00",
+    hf: "13:00:00",
+    diagnostico: "Problemas cutaneos"
+  },
+  {
+    _id: consulta4,
+    medicoId: medicoManotas,
+    pacienteId: pacientePlutarco,
+    fechaConsulta: ISODate("2023-04-25T00:00:00.000Z"),
+    hi: "16:00:00",
+    hf: "17:00:00",
+    diagnostico: "Examen ocular"
+  },
+  {
+    _id: consulta5,
+    medicoId: medicoManotas,
+    pacienteId: pacientePlutarco,
+    fechaConsulta: ISODate("2023-05-30T00:00:00.000Z"),
+    hi: "10:00:00",
+    hf: "11:00:00",
+    diagnostico: "Chequeo ginecologico"
+  },
+  {
+    _id: consulta6,
+    medicoId: medicoManotas,
+    pacienteId: pacientePlutarco,
+    fechaConsulta: ISODate("2023-11-20T00:00:00.000Z"),
+    hi: "08:00:00",
+    hf: "09:00:00",
+    diagnostico: "Mamografía"
+  },
+  {
+    _id: consulta7,
+    medicoId: medicoManotas,
+    pacienteId: pacientePlutarco,
+    fechaConsulta: ISODate("2023-11-22T00:00:00.000Z"),
+    hi: "10:00:00",
+    hf: "11:00:00",
+    diagnostico: "Arritmias cardíacas"
+  },
+  {
+    _id: consulta8,
+    medicoId: medicoManotas,
+    pacienteId: pacientePlutarco,
+    fechaConsulta: ISODate("2023-11-17T00:00:00.000Z"),
+    hi: "11:00:00",
+    hf: "12:00:00",
+    diagnostico: "Hipermetropía"
+  }
+]);
+
+
+// ==========================================================
+// 8. COLECCIÓN: recetas
+// IdConsulta e IdMedicamento ahora son consultaId y medicamentoId con ObjectId.
+// ==========================================================
+
+db.createCollection("recetas", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["_id", "consultaId", "medicamentoId", "cantidad"],
+      properties: {
+        _id: {
+          bsonType: "objectId",
+          description: "Clave primaria de la receta. Debe ser ObjectId."
+        },
+        consultaId: {
+          bsonType: "objectId",
+          description: "Referencia a consultas._id. Debe ser ObjectId."
+        },
+        medicamentoId: {
+          bsonType: "objectId",
+          description: "Referencia a medicamentos._id. Debe ser ObjectId."
+        },
+        cantidad: {
+          bsonType: "int"
+        }
+      }
+    }
+  }
+});
+
+db.recetas.insertMany([
+  {
+    _id: receta1,
+    consultaId: consulta1,
+    medicamentoId: medParacetamol,
+    cantidad: NumberInt(2)
+  },
+  {
+    _id: receta2,
+    consultaId: consulta2,
+    medicamentoId: medParacetamol,
+    cantidad: NumberInt(1)
+  },
+  {
+    _id: receta3,
+    consultaId: consulta3,
+    medicamentoId: medParacetamol,
+    cantidad: NumberInt(3)
+  },
+  {
+    _id: receta4,
+    consultaId: consulta4,
+    medicamentoId: medParacetamol,
+    cantidad: NumberInt(1)
+  }
+]);
+
+
+// ==========================================================
+// 9. ÍNDICES
+// ==========================================================
+
+db.especialidades.createIndex(
+  { descripcion: 1 },
+  { name: "idx_especialidades_descripcion" }
+);
+
+db.medicamentos.createIndex(
+  { nombre: 1 },
+  { name: "idx_medicamentos_nombre" }
+);
+
+db.medicos.createIndex(
+  { especialidadId: 1 },
+  { name: "idx_medicos_especialidadId" }
+);
+
+db.pacientes.createIndex(
+  { cedula: 1 },
+  { name: "idx_pacientes_cedula", unique: true }
+);
+
+db.consultas.createIndex(
+  { medicoId: 1 },
+  { name: "idx_consultas_medicoId" }
+);
+
+db.consultas.createIndex(
+  { pacienteId: 1 },
+  { name: "idx_consultas_pacienteId" }
+);
+
+db.consultas.createIndex(
+  { fechaConsulta: 1 },
+  { name: "idx_consultas_fechaConsulta" }
+);
+
+db.recetas.createIndex(
+  { consultaId: 1 },
+  { name: "idx_recetas_consultaId" }
+);
+
+db.recetas.createIndex(
+  { medicamentoId: 1 },
+  { name: "idx_recetas_medicamentoId" }
+);
+
+
+// ==========================================================
+// 10. VERIFICACIÓN FINAL
+// ==========================================================
+
+print("");
+print("==========================================================");
+print("BASE DE DATOS CREADA CORRECTAMENTE: ProyectoVeris_MongoBD");
+print("==========================================================");
+
+print("");
+print("Colecciones creadas:");
+printjson(db.getCollectionNames());
+
+print("");
+print("Cantidad de documentos:");
+printjson({
+  especialidades: db.especialidades.countDocuments(),
+  medicamentos: db.medicamentos.countDocuments(),
+  medicos: db.medicos.countDocuments(),
+  pacientes: db.pacientes.countDocuments(),
+  consultas: db.consultas.countDocuments(),
+  recetas: db.recetas.countDocuments()
+});
+
+print("");
+print("Verificacion de relaciones con ObjectId:");
+db.consultas.aggregate([
+  {
+    $lookup: {
+      from: "medicos",
+      localField: "medicoId",
+      foreignField: "_id",
+      as: "medico"
+    }
+  },
+  {
+    $unwind: "$medico"
+  },
+  {
+    $lookup: {
+      from: "especialidades",
+      localField: "medico.especialidadId",
+      foreignField: "_id",
+      as: "especialidad"
+    }
+  },
+  {
+    $unwind: "$especialidad"
+  },
+  {
+    $lookup: {
+      from: "pacientes",
+      localField: "pacienteId",
+      foreignField: "_id",
+      as: "paciente"
+    }
+  },
+  {
+    $unwind: "$paciente"
+  },
+  {
+    $lookup: {
+      from: "recetas",
+      localField: "_id",
+      foreignField: "consultaId",
+      as: "recetas"
+    }
+  },
+  {
+    $project: {
+      _id: 1,
+      fechaConsulta: 1,
+      hi: 1,
+      hf: 1,
+      diagnostico: 1,
+      medico: "$medico.nombre",
+      especialidad: "$especialidad.descripcion",
+      paciente: "$paciente.nombre",
+      totalRecetas: { $size: "$recetas" }
+    }
+  },
+  {
+    $sort: {
+      fechaConsulta: 1
+    }
+  }
+]).forEach(doc => printjson(doc));
+
+print("");
+print("Script finalizado correctamente.");

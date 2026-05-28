@@ -1,0 +1,649 @@
+*********Instalar el driver de MongoDB***************
+
+dotnet add package MongoDB.Driver
+
+
+******************Configurar appsettings.json********************
+
+************Agrega una sección para Mongo:***************
+
+},
+
+  "MongoDb": {
+    "ConnectionString": "mongodb://localhost:27017",
+    "DatabaseName": "ProyectoVeris_MongoBD"
+  },
+
+
+**********Crear MongoDbSettings.cs en models ***************
+
+namespace MoldeMVC_Core.Models
+{
+    public class MongoDbSettings
+    {
+        public string ConnectionString { get; set; } = null!;
+        public string DatabaseName { get; set; } = null!;
+    }
+}
+
+**************** Agregamos una por una las clases models de las respectivas colecciones *******************
+****************                                  Pacientes.cs                          ****************
+
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace MoldeMVC_Core.Models
+{
+    public class Pacientes
+    {
+            [Key]
+            [BsonId]
+            [BsonRepresentation(BsonType.ObjectId)]
+            public string _id { get; set; } = default!;
+            public string nombre { get; set; } = default!;
+            public int cedula { get; set; } = default!;
+            public int edad { get; set; } = default!;
+            public string genero { get; set; } = default!;
+            public int estatura { get; set; } = default!;
+            public int peso { get; set; } = default!;
+            public string foto { get; set; } = default!;
+
+    }
+}
+
+
+*********** En la carpeta data crear VerisMongoContext.cs ***************
+using MoldeMVC_Core.Models;
+using MongoDB.Driver;
+
+namespace MoldeMVC_Core.Data
+{
+    public class VerisMongoContext
+    {
+        public IMongoCollection<Pacientes> Pacientes { get; }
+
+        public VerisMongoContext(IMongoDatabase database)
+        {
+            Pacientes = database.GetCollection<Pacientes>("Pacientes");
+        }
+    }
+}
+
+
+************ Registrar Mongo en Program.cs *******************
+
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+
+
+// =====================
+// 2. MongoDB
+// Lee la sección "MongoDb" de appsettings.json
+// =====================
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDb"));
+
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+builder.Services.AddSingleton(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    var client = sp.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(settings.DatabaseName);
+});
+
+builder.Services.AddSingleton<VerisMongoContext>();
+
+******************** Creamos el controlador de Pacientes *********************
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using MoldeMVC_Core.Data;
+using MoldeMVC_Core.Models;
+
+namespace MoldeMVC_Core.Controllers
+{
+    public class PacientesController : Controller
+    {
+        private readonly VerisMongoContext _context;
+
+        public PacientesController(VerisMongoContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Pacientes
+        public async Task<IActionResult> Index()
+        {
+            var pacientes = await _context.Pacientes
+                .Find(Builders<Pacientes>.Filter.Empty)
+                .ToListAsync();
+
+            return View(pacientes);
+        }
+
+        // GET: Pacientes/Details/5
+        public async Task<IActionResult> Details(string id)
+        {
+            if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+            {
+                return NotFound();
+            }
+
+            var pacientes = await _context.Pacientes
+                .Find(p => p._id == id)
+                .FirstOrDefaultAsync();
+
+            if (pacientes == null)
+            {
+                return NotFound();
+            }
+
+            return View(pacientes);
+        }
+
+        // GET: Pacientes/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Pacientes/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("nombre,cedula,edad,genero,estatura,peso,foto")] Pacientes pacientes)
+        {
+            pacientes._id = ObjectId.GenerateNewId().ToString();
+
+            ModelState.Remove("_id");
+
+            if (!ModelState.IsValid)
+            {
+                return View(pacientes);
+            }
+
+            try
+            {
+                var existeCedula = await _context.Pacientes
+                    .Find(p => p.cedula == pacientes.cedula)
+                    .AnyAsync();
+
+                if (existeCedula)
+                {
+                    ModelState.AddModelError("cedula", "Ya existe un paciente registrado con esta cédula.");
+                    return View(pacientes);
+                }
+
+                await _context.Pacientes.InsertOneAsync(pacientes);
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (MongoWriteException ex)
+            {
+                ModelState.AddModelError("", "Error al guardar en MongoDB: " + ex.Message);
+                return View(pacientes);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error inesperado: " + ex.Message);
+                return View(pacientes);
+            }
+        }
+
+        // GET: Pacientes/Edit/5
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+            {
+                return NotFound();
+            }
+
+            var pacientes = await _context.Pacientes
+                .Find(p => p._id == id)
+                .FirstOrDefaultAsync();
+
+            if (pacientes == null)
+            {
+                return NotFound();
+            }
+
+            return View(pacientes);
+        }
+
+        // POST: Pacientes/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, [Bind("_id,nombre,cedula,edad,genero,estatura,peso,foto")] Pacientes pacientes)
+        {
+            if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+            {
+                return NotFound();
+            }
+
+            if (id != pacientes._id)
+            {
+                return NotFound();
+            }
+
+            ModelState.Remove("_id");
+
+            if (!ModelState.IsValid)
+            {
+                return View(pacientes);
+            }
+
+            try
+            {
+                var cedulaUsadaPorOtro = await _context.Pacientes
+                    .Find(p => p.cedula == pacientes.cedula && p._id != pacientes._id)
+                    .AnyAsync();
+
+                if (cedulaUsadaPorOtro)
+                {
+                    ModelState.AddModelError("cedula", "Ya existe otro paciente registrado con esta cédula.");
+                    return View(pacientes);
+                }
+
+                var resultado = await _context.Pacientes
+                    .ReplaceOneAsync(p => p._id == id, pacientes);
+
+                if (resultado.MatchedCount == 0)
+                {
+                    return NotFound();
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (MongoWriteException ex)
+            {
+                ModelState.AddModelError("", "Error al actualizar en MongoDB: " + ex.Message);
+                return View(pacientes);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error inesperado: " + ex.Message);
+                return View(pacientes);
+            }
+        }
+
+        // GET: Pacientes/Delete/5
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+            {
+                return NotFound();
+            }
+
+            var pacientes = await _context.Pacientes
+                .Find(p => p._id == id)
+                .FirstOrDefaultAsync();
+
+            if (pacientes == null)
+            {
+                return NotFound();
+            }
+
+            return View(pacientes);
+        }
+
+        // POST: Pacientes/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+            {
+                return NotFound();
+            }
+
+            var resultado = await _context.Pacientes
+                .DeleteOneAsync(p => p._id == id);
+
+            if (resultado.DeletedCount == 0)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
+******************************* Creamos la vista mediante Entity Framework *********************************
+******************************* Index *********************************
+@model IEnumerable<MoldeMVC_Core.Models.Pacientes>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.cedula)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.edad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.genero)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.estatura)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.peso)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.foto)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.cedula)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.edad)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.genero)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.estatura)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.peso)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.foto)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item._id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item._id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item._id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+******************************* Create *********************************
+
+@model MoldeMVC_Core.Models.Pacientes
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Pacientes</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="nombre" class="control-label"></label>
+                <input asp-for="nombre" class="form-control" />
+                <span asp-validation-for="nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="cedula" class="control-label"></label>
+                <input asp-for="cedula" class="form-control" />
+                <span asp-validation-for="cedula" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="edad" class="control-label"></label>
+                <input asp-for="edad" class="form-control" />
+                <span asp-validation-for="edad" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="genero" class="control-label"></label>
+                <input asp-for="genero" class="form-control" />
+                <span asp-validation-for="genero" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="estatura" class="control-label"></label>
+                <input asp-for="estatura" class="form-control" />
+                <span asp-validation-for="estatura" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="peso" class="control-label"></label>
+                <input asp-for="peso" class="form-control" />
+                <span asp-validation-for="peso" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="foto" class="control-label"></label>
+                <input asp-for="foto" class="form-control" />
+                <span asp-validation-for="foto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+******************************* Delete *********************************
+@model MoldeMVC_Core.Models.Pacientes
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Pacientes</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.nombre)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.nombre)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.cedula)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.cedula)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.edad)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.edad)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.genero)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.genero)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.estatura)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.estatura)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.peso)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.peso)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.foto)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.foto)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="_id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
+
+******************************* Details *********************************
+
+@model MoldeMVC_Core.Models.Pacientes
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Pacientes</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.nombre)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.nombre)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.cedula)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.cedula)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.edad)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.edad)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.genero)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.genero)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.estatura)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.estatura)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.peso)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.peso)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.foto)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.foto)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?._id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+******************************* Edit *********************************
+@model MoldeMVC_Core.Models.Pacientes
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Pacientes</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="_id" />
+            <div class="form-group">
+                <label asp-for="nombre" class="control-label"></label>
+                <input asp-for="nombre" class="form-control" />
+                <span asp-validation-for="nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="cedula" class="control-label"></label>
+                <input asp-for="cedula" class="form-control" />
+                <span asp-validation-for="cedula" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="edad" class="control-label"></label>
+                <input asp-for="edad" class="form-control" />
+                <span asp-validation-for="edad" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="genero" class="control-label"></label>
+                <input asp-for="genero" class="form-control" />
+                <span asp-validation-for="genero" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="estatura" class="control-label"></label>
+                <input asp-for="estatura" class="form-control" />
+                <span asp-validation-for="estatura" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="peso" class="control-label"></label>
+                <input asp-for="peso" class="form-control" />
+                <span asp-validation-for="peso" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="foto" class="control-label"></label>
+                <input asp-for="foto" class="form-control" />
+                <span asp-validation-for="foto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
