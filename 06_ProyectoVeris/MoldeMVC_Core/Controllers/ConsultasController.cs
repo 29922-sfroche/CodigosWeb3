@@ -1,8 +1,14 @@
-
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MoldeMVC_Core.Models;
 using MoldeMVC_Core.Data;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 public class ConsultasController : Controller
 {
@@ -13,138 +19,197 @@ public class ConsultasController : Controller
         _context = context;
     }
 
-    //// GET: CONSULTASS
-    //public async Task<IActionResult> Index()    
-    //{
-    //    return View(await _context.Consultas.ToListAsync());
-    //}
+    // GET: CONSULTASS
+    public async Task<IActionResult> Index()
+    {
+        var consultas = await _context.Consultas.Find(Builders<Consultas>.Filter.Empty).ToListAsync();
 
-    //// GET: CONSULTASS/Details/5
-    //public async Task<IActionResult> Details(string? _id)
-    //{
-    //    if (_id == null)
-    //    {
-    //        return NotFound();
-    //    }
+        return View(consultas);
+    }
 
-    //    var consultas = await _context.Consultas
-    //        .FirstOrDefaultAsync(m => m._id == _id);
-    //    if (consultas == null)
-    //    {
-    //        return NotFound();
-    //    }
+    // GET: CONSULTASS/Details/5
+    public async Task<IActionResult> Details(string id)
+    {
+        if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+        {
+            return NotFound();
+        }
 
-    //    return View(consultas);
-    //}
+        var consultas = await _context.Consultas
+            .Find(c => c._id == id)
+            .FirstOrDefaultAsync();
 
-    //// GET: CONSULTASS/Create
-    //public IActionResult Create()
-    //{
-    //    return View();
-    //}
+        if (consultas == null)
+        {
+            return NotFound();
+        }
 
-    //// POST: CONSULTASS/Create
-    //// To protect from overposting attacks, enable the specific properties you want to bind to.
-    //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    //[HttpPost]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> Create([Bind("_id,medicoId,pacienteId,fechaConsulta,hi,hf,diagnostico")] Consultas consultas)
-    //{
-    //    if (ModelState.IsValid)
-    //    {
-    //        _context.Add(consultas);
-    //        await _context.SaveChangesAsync();
-    //        return RedirectToAction(nameof(Index));
-    //    }
-    //    return View(consultas);
-    //}
+        return View(consultas);
+    }
 
-    //// GET: CONSULTASS/Edit/5
-    //public async Task<IActionResult> Edit(string? _id)
-    //{
-    //    if (_id == null)
-    //    {
-    //        return NotFound();
-    //    }
+    // GET: CONSULTASS/Create
+    public IActionResult Create()
+    {
+        return View();
+    }
 
-    //    var consultas = await _context.Consultas.FindAsync(_id);
-    //    if (consultas == null)
-    //    {
-    //        return NotFound();
-    //    }
-    //    return View(consultas);
-    //}
+    // POST: CONSULTASS/Create
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("medicoId,pacienteId,fechaConsulta,hi,hf,diagnostico")] Consultas consultas)
+    {
 
-    //// POST: CONSULTASS/Edit/5
-    //// To protect from overposting attacks, enable the specific properties you want to bind to.
-    //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    //[HttpPost]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> Edit(string? _id, [Bind("_id,medicoId,pacienteId,fechaConsulta,hi,hf,diagnostico")] Consultas consultas)
-    //{
-    //    if (_id != consultas._id)
-    //    {
-    //        return NotFound();
-    //    }
+        consultas._id = ObjectId.GenerateNewId().ToString();
 
-    //    if (ModelState.IsValid)
-    //    {
-    //        try
-    //        {
-    //            _context.Update(consultas);
-    //            await _context.SaveChangesAsync();
-    //        }
-    //        catch (DbUpdateConcurrencyException)
-    //        {
-    //            if (!ConsultasExists(consultas._id))
-    //            {
-    //                return NotFound();
-    //            }
-    //            else
-    //            {
-    //                throw;
-    //            }
-    //        }
-    //        return RedirectToAction(nameof(Index));
-    //    }
-    //    return View(consultas);
-    //}
+        ModelState.Remove("_id"); // Elimina la validación para _id, ya que se genera automáticamente
 
-    //// GET: CONSULTASS/Delete/5
-    //public async Task<IActionResult> Delete(string? _id)
-    //{
-    //    if (_id == null)
-    //    {
-    //        return NotFound();
-    //    }
+        if (ModelState.IsValid)
+        {
+            return View(consultas);
+        }
 
-    //    var consultas = await _context.Consultas
-    //        .FirstOrDefaultAsync(m => m._id == _id);
-    //    if (consultas == null)
-    //    {
-    //        return NotFound();
-    //    }
+        try
+        {
+            var existeConsulta = await _context.Consultas.Find(c => c._id == consultas._id).FirstOrDefaultAsync();
 
-    //    return View(consultas);
-    //}
+            if (existeConsulta != null)
+            {
+                ModelState.AddModelError(string.Empty, "Ya existe una consulta con el mismo ID.");
+                return View(consultas);
+            }
 
-    //// POST: CONSULTASS/Delete/5
-    //[HttpPost, ActionName("Delete")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> DeleteConfirmed(string? _id)
-    //{
-    //    var consultas = await _context.Consultas.FindAsync(_id);
-    //    if (consultas != null)
-    //    {
-    //        _context.Consultas.Remove(consultas);
-    //    }
+            await _context.Consultas.InsertOneAsync(consultas);
 
-    //    await _context.SaveChangesAsync();
-    //    return RedirectToAction(nameof(Index));
-    //}
+            return RedirectToAction(nameof(Index));
+
+        }
+        catch (MongoWriteException ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Error al escribir en la base de datos: {ex.Message}");
+            return View(consultas);
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Error al crear la consulta: {ex.Message}");
+            return View(consultas);
+        }
+
+    }
+
+    // GET: CONSULTASS/Edit/5
+    public async Task<IActionResult> Edit(string id)
+    {
+        if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+        {
+            return NotFound();
+        }
+
+        var consultas = await _context.Consultas.Find(c => c._id == id).FirstOrDefaultAsync();
+
+        if (consultas == null)
+        {
+            return NotFound();
+        }
+        return View(consultas);
+    }
+
+    // POST: CONSULTASS/Edit/5
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(string id, [Bind("_id,medicoId,pacienteId,fechaConsulta,hi,hf,diagnostico")] Consultas consultas)
+    {
+        if (String.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+        {
+            return NotFound();
+        }
+
+        if(id != consultas._id)
+        {
+            return NotFound();
+        }
+        
+        ModelState.Remove("_id"); // Elimina la validación para _id, ya que no se debe modificar
+
+        if (!ModelState.IsValid)
+        {
+            return View(consultas);
+        }
+
+        try
+        {
+            var filtro = Builders<Consultas>.Filter.Eq(c => c._id, id);
+            var resultado = await _context.Consultas.ReplaceOneAsync(filtro, consultas);
+            if (resultado.MatchedCount == 0)
+            {
+                return NotFound();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        catch (MongoWriteException ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Error al escribir en la base de datos: {ex.Message}");
+            return View(consultas);
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Error al editar la consulta: {ex.Message}");
+            return View(consultas);
+
+        }
+        
+
+    }
+         
+    // GET: CONSULTASS/Delete/5
+    public async Task<IActionResult> Delete(string id)
+    {
+        if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+        {
+            return NotFound();
+        }
+
+        var consultas = await _context.Consultas
+            .Find(c => c._id == id)
+            .FirstOrDefaultAsync();
+
+        if (consultas == null)
+        {
+            return NotFound();
+        }
+
+        return View(consultas);
+    }
+
+    // POST: CONSULTASS/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(string id)
+    {
+        
+        if(String.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+        {
+            return NotFound();
+        }
+
+        var resultado = await _context.Consultas.DeleteOneAsync(c => c._id == id);
+    
+        if (resultado.DeletedCount == 0)
+        {
+            return NotFound();
+        }
+
+        return RedirectToAction(nameof(Index));
+
+    }
 
     //private bool ConsultasExists(string? _id)
     //{
     //    return _context.Consultas.Any(e => e._id == _id);
     //}
+
+
 }
