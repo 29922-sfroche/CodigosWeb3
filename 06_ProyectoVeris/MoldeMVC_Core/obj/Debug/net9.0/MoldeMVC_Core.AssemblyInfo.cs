@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MoldeMVC_Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b459389936665c852f1837d845942ba278c87544")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+448dfabcdbc968a30eef1f4c06d6ea6127662a24")]
 [assembly: System.Reflection.AssemblyProductAttribute("MoldeMVC_Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MoldeMVC_Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
