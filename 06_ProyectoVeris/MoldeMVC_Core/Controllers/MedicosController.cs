@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MoldeMVC_Core.Data;
 using MoldeMVC_Core.Models;
 
-namespace MoldeMVC_Core.Controllers
-{
     public class MedicosController : Controller
     {
         private readonly VerisMongoContext _context;
@@ -154,4 +150,3 @@ namespace MoldeMVC_Core.Controllers
         //    return _context.Medicos.Any(e => e._id == id);
         //}
     }
-}
