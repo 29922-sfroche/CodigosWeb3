@@ -1,7 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MoldeMVC_Core.Models;
 using MoldeMVC_Core.Data;
 
 public class MedicosController : Controller
@@ -143,8 +142,4 @@ public class MedicosController : Controller
     //    return RedirectToAction(nameof(Index));
     //}
 
-    //private bool MedicosExists(string? _id)
-    //{
-    //    return _context.Medicos.Any(e => e._id == _id);
-    //}
 }
