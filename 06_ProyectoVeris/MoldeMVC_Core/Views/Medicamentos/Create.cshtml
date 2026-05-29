@@ -1,36 +1,46 @@
 @model MoldeMVC_Core.Models.Medicamentos
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Nuevo medicamento";
 }
 
-<h1>Create</h1>
-
-<h4>Medicamentos</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group">
-                <label asp-for="nombre" class="control-label"></label>
-                <input asp-for="nombre" class="form-control" />
-                <span asp-validation-for="nombre" class="text-danger"></span>
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-capsule"></i> Nuevo medicamento</h5>
+    </div>
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post" novalidate>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
+            }
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label fw-semibold"></label>
+                <input asp-for="Nombre" class="form-control" placeholder="Ej: Amoxicilina 500mg" />
+                <span asp-validation-for="Nombre" class="text-danger small"></span>
             </div>
-
-            <div class="form-group">
-                <label asp-for="tipo" class="control-label"></label>
-                <input asp-for="tipo" class="form-control" />
-                <span asp-validation-for="tipo" class="text-danger"></span>
+            <div class="mb-3">
+                <label asp-for="Tipo" class="form-label fw-semibold"></label>
+                <select asp-for="Tipo" class="form-select">
+                    <option value="">-- Seleccione tipo --</option>
+                    <option>Analgesico</option>
+                    <option>Antibiotico</option>
+                    <option>Antihistaminico</option>
+                    <option>Antiacido</option>
+                    <option>Antiinflamatorio</option>
+                    <option>Antipiretico</option>
+                    <option>Otro</option>
+                </select>
+                <span asp-validation-for="Tipo" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

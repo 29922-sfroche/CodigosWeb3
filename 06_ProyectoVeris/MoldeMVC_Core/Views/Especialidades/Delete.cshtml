@@ -1,50 +1,32 @@
 @model MoldeMVC_Core.Models.Especialidades
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Eliminar especialidad";
 }
 
-<h1>Delete</h1>
+<div class="card border-danger shadow-sm mt-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Confirmar eliminación</h5>
+    </div>
+    <div class="card-body">
+        <p>¿Está seguro de que desea eliminar este registro?</p>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>MoldeMVC_Core.Models.Especialidades</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.descripcion)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.dias)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.dias)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.franjaHI)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.franjaHI)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.franjaHF)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.franjaHF)
-        </dd>
-    </dl>
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="_id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+        <dl class="row">
+            <dt class="col-sm-3">Especialidad</dt>
+            <dd class="col-sm-9">@Model.Descripcion</dd>
+            <dt class="col-sm-3">Días</dt>
+            <dd class="col-sm-9">@Model.Dias</dd>
+            <dt class="col-sm-3">Hora Inicio</dt>
+            <dd class="col-sm-9">@Model.FranjaHI</dd>
+            <dt class="col-sm-3">Hora Fin</dt>
+            <dd class="col-sm-9">@Model.FranjaHF</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger me-2"><i class="bi bi-trash"></i> Eliminar</button>
+            <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
 </div>

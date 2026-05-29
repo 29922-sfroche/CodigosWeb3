@@ -1,49 +1,87 @@
 @model MoldeMVC_Core.Models.Especialidades
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar especialidad";
 }
 
-<h1>Edit</h1>
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Editar especialidad</h5>
+    </div>
+    <div class="card-body p-4">
+        <form asp-action="Edit" method="post" novalidate>
+            <input type="hidden" asp-for="Id" />
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
+            }
 
-<h4>Especialidades</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="_id" />
-            <div class="form-group">
-                <label asp-for="descripcion" class="control-label"></label>
-                <input asp-for="descripcion" class="form-control" />
-                <span asp-validation-for="descripcion" class="text-danger"></span>
+            <div class="mb-3">
+                <label asp-for="Descripcion" class="form-label fw-semibold"></label>
+                <input asp-for="Descripcion" class="form-control" placeholder="Ej: Cardiología, Pediatría..." />
+                <span asp-validation-for="Descripcion" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="dias" class="control-label"></label>
-                <input asp-for="dias" class="form-control" />
-                <span asp-validation-for="dias" class="text-danger"></span>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Días de Atención</label>
+                <input asp-for="Dias" type="hidden" id="Dias" />
+                <div class="d-flex flex-wrap gap-2" id="diasContainer">
+                    @foreach (var dia in new[] { "L", "M", "X", "J", "V", "S" })
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input dia-check" type="checkbox" id="dia_@dia" value="@dia" />
+                            <label class="form-check-label" for="dia_@dia">@dia</label>
+                        </div>
+                    }
+                </div>
+                <small class="text-muted">L = Lunes, M = Martes, X = Miércoles, J = Jueves, V = Viernes, S = Sábado</small><br />
+                <span asp-validation-for="Dias" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="franjaHI" class="control-label"></label>
-                <input asp-for="franjaHI" class="form-control" />
-                <span asp-validation-for="franjaHI" class="text-danger"></span>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FranjaHI" class="form-label fw-semibold"></label>
+                    <select asp-for="FranjaHI" asp-items="ViewBag.Horas" class="form-select">
+                        <option value="">-- Seleccione hora inicio --</option>
+                    </select>
+                    <span asp-validation-for="FranjaHI" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="FranjaHF" class="form-label fw-semibold"></label>
+                    <select asp-for="FranjaHF" asp-items="ViewBag.HorasFin" class="form-select">
+                        <option value="">-- Seleccione hora fin --</option>
+                    </select>
+                    <span asp-validation-for="FranjaHF" class="text-danger small"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="franjaHF" class="control-label"></label>
-                <input asp-for="franjaHF" class="form-control" />
-                <span asp-validation-for="franjaHF" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar cambios</button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            const hidden = document.getElementById('Dias');
+            const checks = document.querySelectorAll('.dia-check');
+            const selected = '@Model.Dias';
+
+            function actualizarDias() {
+                const orden = ['L', 'M', 'X', 'J', 'V', 'S'];
+                const seleccionados = orden.filter(x => document.getElementById('dia_' + x).checked);
+                hidden.value = seleccionados.join('');
+            }
+
+            checks.forEach(c => {
+                c.checked = selected.includes(c.value);
+                c.addEventListener('change', actualizarDias);
+            });
+            actualizarDias();
+        })();
+    </script>
 }

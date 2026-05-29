@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@* @using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
@@ -24,3 +24,69 @@ else
     </li>
 }
 </ul>
+ *@
+
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <ul class="navbar-nav align-items-start align-items-md-center ms-auto flex-column flex-md-row gap-2 gap-md-0">
+        <li class="nav-item mx-md-2">
+            <a class="nav-link fw-bold text-wrap" style="color:#0d6efd;" title="Manage" asp-area="Identity" asp-page="/Account/Manage/Index">
+                Hola @User.Identity?.Name!
+            </a>
+        </li>
+        <li class="nav-item mx-md-2">
+            <form class="form-inline m-0" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="btn btn-primary rounded-3 px-3 fw-bold text-white border-0 w-100 w-md-auto">
+                    Cerrar sesión
+                </button>
+            </form>
+        </li>
+    </ul>
+}
+else
+{
+    <ul class="navbar-nav flex-grow-1 align-items-center justify-content-center">
+        <li class="nav-item mx-3">
+            <a class="nav-link fw-semibold" style="color:#0d6efd;" asp-controller="Home" asp-action="Index" asp-fragment="paquetes">
+                Paquetes Preventivos
+            </a>
+        </li>
+        <li class="nav-item mx-3">
+            <a class="nav-link fw-semibold" style="color:#0d6efd;" asp-controller="Home" asp-action="Index" asp-fragment="servicios">
+                Servicios
+            </a>
+        </li>
+        <li class="nav-item mx-3">
+            <a class="nav-link fw-semibold" style="color:#0d6efd;" asp-controller="Home" asp-action="Index" asp-fragment="especialidades">
+                Especialidades
+            </a>
+        </li>
+        <li class="nav-item mx-3">
+            <a class="nav-link fw-semibold" style="color:#0d6efd;" asp-controller="Home" asp-action="Index" asp-fragment="ubicaciones">
+                Ubicaciones
+            </a>
+        </li>
+        <li class="nav-item mx-3">
+            <a class="nav-link fw-semibold" style="color:#0d6efd;" asp-controller="Home" asp-action="Index" asp-fragment="nosotros">
+                Nosotros
+            </a>
+        </li>
+    </ul>
+
+    <ul class="navbar-nav align-items-center ms-auto">
+        <li class="nav-item mx-2">
+            <a class="nav-link fw-bold" style="color:#0d6efd;" asp-area="Identity" asp-page="/Account/Register">
+                Registrarse
+            </a>
+        </li>
+        <li class="nav-item mx-2">
+            <a class="btn btn-primary rounded-3 px-4 py-2 fw-bold text-white" asp-area="Identity" asp-page="/Account/Login">
+                Iniciar sesión
+            </a>
+        </li>
+    </ul>
+}

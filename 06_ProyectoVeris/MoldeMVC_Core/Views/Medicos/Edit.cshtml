@@ -1,42 +1,56 @@
 @model MoldeMVC_Core.Models.Medicos
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar médico";
 }
 
-<h1>Edit</h1>
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Editar médico</h5>
+    </div>
+    <div class="card-body p-4">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data" novalidate>
+            <input type="hidden" asp-for="Id" />
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
+            }
 
-<h4>Medicos</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="_id" />
-            <div class="form-group">
-                <label asp-for="nombre" class="control-label"></label>
-                <input asp-for="nombre" class="form-control" />
-                <span asp-validation-for="nombre" class="text-danger"></span>
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label fw-semibold"></label>
+                <input asp-for="Nombre" class="form-control" placeholder="Ej: Dr. Juan Pérez" />
+                <span asp-validation-for="Nombre" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="especialidadId" class="control-label"></label>
-                <input asp-for="especialidadId" class="form-control" />
-                <span asp-validation-for="especialidadId" class="text-danger"></span>
+
+            <div class="mb-3">
+                <label asp-for="EspecialidadId" class="form-label fw-semibold"></label>
+                <select asp-for="EspecialidadId" asp-items="ViewBag.EspecialidadId" class="form-select">
+                    <option value="">-- Seleccione especialidad --</option>
+                </select>
+                <span asp-validation-for="EspecialidadId" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="foto" class="control-label"></label>
-                <input asp-for="foto" class="form-control" />
-                <span asp-validation-for="foto" class="text-danger"></span>
+
+            <div class="mb-3">
+                <label asp-for="FotoFile" class="form-label fw-semibold"></label>
+                <input type="file" asp-for="FotoFile" class="form-control" accept=".jpg,.jpeg,.png,.gif" />
+                <small class="text-muted">Formatos: JPG, PNG, GIF. Máximo 2 MB.</small>
+                <span asp-validation-for="FotoFile" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            @if (!string.IsNullOrEmpty(Model.Foto))
+            {
+                <div class="mb-3">
+                    <img src="/imaganes/medicos/@Model.Foto" class="img-thumbnail" style="max-height:120px;" alt="Foto actual" />
+                    <p class="text-muted small mb-0">Foto actual: @Model.Foto</p>
+                </div>
+            }
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar cambios</button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

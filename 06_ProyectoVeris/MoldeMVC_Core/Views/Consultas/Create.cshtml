@@ -1,60 +1,93 @@
 @model MoldeMVC_Core.Models.Consultas
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Nueva consulta";
 }
 
-<h1>Create</h1>
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-clipboard-plus"></i> Nueva consulta</h5>
+    </div>
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post" novalidate>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
+            }
 
-<h4>Consultas</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group">
-                <label asp-for="medicoId" class="control-label"></label>
-                <input asp-for="medicoId" class="form-control" />
-                <span asp-validation-for="medicoId" class="text-danger"></span>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="MedicoId" class="form-label fw-semibold"></label>
+                    <select asp-for="MedicoId" asp-items="ViewBag.MedicoId" class="form-select">
+                        <option value="">-- Seleccione médico --</option>
+                    </select>
+                    <span asp-validation-for="MedicoId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PacienteId" class="form-label fw-semibold"></label>
+                    <select asp-for="PacienteId" asp-items="ViewBag.PacienteId" class="form-select">
+                        <option value="">-- Seleccione paciente --</option>
+                    </select>
+                    <span asp-validation-for="PacienteId" class="text-danger small"></span>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label asp-for="pacienteId" class="control-label"></label>
-                <input asp-for="pacienteId" class="form-control" />
-                <span asp-validation-for="pacienteId" class="text-danger"></span>
+            <div class="row g-3 mt-0">
+                <div class="col-md-4">
+                    <label asp-for="FechaConsulta" class="form-label fw-semibold"></label>
+                    <input asp-for="FechaConsulta" type="date" class="form-control" value="@(Model?.FechaConsulta.ToString("yyyy-MM-dd"))" />
+                    <span asp-validation-for="FechaConsulta" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Hi" class="form-label fw-semibold"></label>
+                    <select asp-for="Hi" asp-items="ViewBag.Horas" class="form-select">
+                        <option value="">-- Seleccione hora inicio --</option>
+                    </select>
+                    <span asp-validation-for="Hi" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Hf" class="form-label fw-semibold"></label>
+                    <select asp-for="Hf" asp-items="ViewBag.HorasFin" class="form-select">
+                        <option value="">-- Seleccione hora fin --</option>
+                    </select>
+                    <span asp-validation-for="Hf" class="text-danger small"></span>
+                    <div class="text-danger small mt-1" id="horaFeedback"></div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label asp-for="fechaConsulta" class="control-label"></label>
-                <input asp-for="fechaConsulta" class="form-control" />
-                <span asp-validation-for="fechaConsulta" class="text-danger"></span>
+            <div class="mb-3 mt-3">
+                <label asp-for="Diagnostico" class="form-label fw-semibold"></label>
+                <textarea asp-for="Diagnostico" class="form-control" rows="3" placeholder="Describa el diagnóstico del paciente..."></textarea>
+                <span asp-validation-for="Diagnostico" class="text-danger small"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="hi" class="control-label"></label>
-                <input asp-for="hi" class="form-control" />
-                <span asp-validation-for="hi" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="hf" class="control-label"></label>
-                <input asp-for="hf" class="form-control" />
-                <span asp-validation-for="hf" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="diagnostico" class="control-label"></label>
-                <input asp-for="diagnostico" class="form-control" />
-                <span asp-validation-for="diagnostico" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            const form = document.querySelector('form');
+            const hi = document.getElementById('Hi');
+            const hf = document.getElementById('Hf');
+            const error = document.getElementById('horaFeedback');
+
+            form.addEventListener('submit', function (e) {
+                if (hi.value && hf.value && hf.value <= hi.value) {
+                    e.preventDefault();
+                    error.textContent = 'La hora de fin debe ser posterior a la hora de inicio.';
+                    hf.classList.add('is-invalid');
+                } else {
+                    error.textContent = '';
+                    hf.classList.remove('is-invalid');
+                }
+            });
+        })();
+    </script>
+}

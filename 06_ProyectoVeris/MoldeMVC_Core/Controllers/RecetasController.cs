@@ -1,10 +1,11 @@
-
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MoldeMVC_Core.Data;
 using MoldeMVC_Core.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Linq;
 
 public class RecetasController : Controller
 {
@@ -15,12 +16,47 @@ public class RecetasController : Controller
         _context = context;
     }
 
+    private async Task PopularSelectListsAsync(string? consultaId = null, string? medicamentoId = null)
+    {
+        var consultas = await _context.Consultas
+            .Find(_ => true)
+            .SortByDescending(c => c.FechaConsulta)
+            .ToListAsync();
+
+        var medicamentos = await _context.Medicamentos
+            .Find(_ => true)
+            .SortBy(m => m.Nombre)
+            .ToListAsync();
+
+        var consultasSelect = consultas.Select(c => new
+        {
+            c.Id,
+            Descripcion = $"{c.FechaConsulta:dd/MM/yyyy} – {c.Diagnostico}"
+        });
+
+        ViewBag.ConsultaId = new SelectList(consultasSelect, "Id", "Descripcion", consultaId);
+        ViewBag.MedicamentoId = new SelectList(medicamentos, nameof(Medicamentos.Id), nameof(Medicamentos.Nombre), medicamentoId);
+    }
+
     // GET: RECETASS
     public async Task<IActionResult> Index()
     {
+        var consultas = await _context.Consultas.Find(_ => true).ToListAsync();
+        var medicamentos = await _context.Medicamentos.Find(_ => true).ToListAsync();
+
         var recetas = await _context.Recetas
-               .Find(Builders<Recetas>.Filter.Empty)
-               .ToListAsync();
+            .Find(Builders<Recetas>.Filter.Empty)
+            .ToListAsync();
+
+        recetas.ForEach(r =>
+        {
+            var consulta = consultas.FirstOrDefault(c => c.Id == r.ConsultaId);
+            var medicamento = medicamentos.FirstOrDefault(m => m.Id == r.MedicamentoId);
+            r.ConsultaDescripcion = consulta == null
+                ? "-"
+                : $"{consulta.FechaConsulta:dd/MM/yyyy} – {consulta.Diagnostico}";
+            r.MedicamentoNombre = medicamento?.Nombre ?? "-";
+        });
 
         return View(recetas);
     }
@@ -33,58 +69,66 @@ public class RecetasController : Controller
             return NotFound();
         }
 
-        var recetas = await _context.Recetas
-            .Find(r => r._id == id)
+        var receta = await _context.Recetas
+            .Find(r => r.Id == id)
             .FirstOrDefaultAsync();
 
-        if (recetas == null)
+        if (receta == null)
         {
             return NotFound();
         }
 
-        return View(recetas);
+        var consulta = await _context.Consultas.Find(c => c.Id == receta.ConsultaId).FirstOrDefaultAsync();
+        var medicamento = await _context.Medicamentos.Find(m => m.Id == receta.MedicamentoId).FirstOrDefaultAsync();
+        receta.ConsultaDescripcion = consulta == null
+            ? "-"
+            : $"{consulta.FechaConsulta:dd/MM/yyyy} – {consulta.Diagnostico}";
+        receta.MedicamentoNombre = medicamento?.Nombre ?? "-";
+
+        return View(receta);
     }
 
     // GET: RECETASS/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        await PopularSelectListsAsync();
         return View();
     }
 
     // POST: RECETASS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("consultaId,medicamentoId,cantidad")] Recetas recetas)
+    public async Task<IActionResult> Create(Recetas recetas)
     {
-        recetas._id = ObjectId.GenerateNewId().ToString();
+        recetas.Id = ObjectId.GenerateNewId().ToString();
 
-        ModelState.Remove("_id");
+        if (recetas.Cantidad < 1)
+        {
+            ModelState.AddModelError(nameof(Recetas.Cantidad), "La cantidad debe ser al menos 1.");
+        }
 
         if (!ModelState.IsValid)
         {
+            await PopularSelectListsAsync(recetas.ConsultaId, recetas.MedicamentoId);
             return View(recetas);
         }
 
         try
         {
-
             await _context.Recetas.InsertOneAsync(recetas);
-
             return RedirectToAction(nameof(Index));
         }
         catch (MongoWriteException ex)
         {
-            ModelState.AddModelError("", "Error al guardar en MongoDB: " + ex.Message);
-            return View(recetas);
+            ModelState.AddModelError(string.Empty, "Error al guardar en MongoDB: " + ex.Message);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", "Error inesperado: " + ex.Message);
-            return View(recetas);
+            ModelState.AddModelError(string.Empty, "Error inesperado: " + ex.Message);
         }
 
+        await PopularSelectListsAsync(recetas.ConsultaId, recetas.MedicamentoId);
+        return View(recetas);
     }
 
     // GET: RECETASS/Edit/5
@@ -95,46 +139,49 @@ public class RecetasController : Controller
             return NotFound();
         }
 
-        var recetas = await _context.Recetas
-            .Find(r => r._id == id)
+        var receta = await _context.Recetas
+            .Find(r => r.Id == id)
             .FirstOrDefaultAsync();
 
-        if (recetas == null)
+        if (receta == null)
         {
             return NotFound();
         }
 
-        return View(recetas);
+        await PopularSelectListsAsync(receta.ConsultaId, receta.MedicamentoId);
+        return View(receta);
     }
 
     // POST: RECETASS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, [Bind("consultaId,medicamentoId,cantidad")] Recetas recetas)
+    public async Task<IActionResult> Edit(string id, Recetas recetas)
     {
         if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
         {
             return NotFound();
         }
 
-        if (id != recetas._id)
+        if (id != recetas.Id)
         {
             return NotFound();
         }
 
-        ModelState.Remove("_id");
+        if (recetas.Cantidad < 1)
+        {
+            ModelState.AddModelError(nameof(Recetas.Cantidad), "La cantidad debe ser al menos 1.");
+        }
 
         if (!ModelState.IsValid)
         {
+            await PopularSelectListsAsync(recetas.ConsultaId, recetas.MedicamentoId);
             return View(recetas);
         }
 
         try
         {
             var resultado = await _context.Recetas
-                .ReplaceOneAsync(p => p._id == id, recetas);
+                .ReplaceOneAsync(p => p.Id == id, recetas);
 
             if (resultado.MatchedCount == 0)
             {
@@ -145,14 +192,15 @@ public class RecetasController : Controller
         }
         catch (MongoWriteException ex)
         {
-            ModelState.AddModelError("", "Error al actualizar en MongoDB: " + ex.Message);
-            return View(recetas);
+            ModelState.AddModelError(string.Empty, "Error al actualizar en MongoDB: " + ex.Message);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", "Error inesperado: " + ex.Message);
-            return View(recetas);
+            ModelState.AddModelError(string.Empty, "Error inesperado: " + ex.Message);
         }
+
+        await PopularSelectListsAsync(recetas.ConsultaId, recetas.MedicamentoId);
+        return View(recetas);
     }
 
     // GET: RECETASS/Delete/5
@@ -163,15 +211,23 @@ public class RecetasController : Controller
             return NotFound();
         }
 
-        var recetas = await _context.Recetas
-            .Find(r => r._id == id)
+        var receta = await _context.Recetas
+            .Find(r => r.Id == id)
             .FirstOrDefaultAsync();
 
-        if (recetas == null)
+        if (receta == null)
         {
             return NotFound();
         }
-        return View(recetas);
+
+        var consulta = await _context.Consultas.Find(c => c.Id == receta.ConsultaId).FirstOrDefaultAsync();
+        var medicamento = await _context.Medicamentos.Find(m => m.Id == receta.MedicamentoId).FirstOrDefaultAsync();
+        receta.ConsultaDescripcion = consulta == null
+            ? "-"
+            : $"{consulta.FechaConsulta:dd/MM/yyyy} – {consulta.Diagnostico}";
+        receta.MedicamentoNombre = medicamento?.Nombre ?? "-";
+
+        return View(receta);
     }
 
     // POST: RECETASS/Delete/5
@@ -185,7 +241,7 @@ public class RecetasController : Controller
         }
 
         var resultado = await _context.Recetas
-            .DeleteOneAsync(r=> r._id == id);
+            .DeleteOneAsync(r => r.Id == id);
 
         if (resultado.DeletedCount == 0)
         {
@@ -193,7 +249,5 @@ public class RecetasController : Controller
         }
 
         return RedirectToAction(nameof(Index));
-
     }
-
 }

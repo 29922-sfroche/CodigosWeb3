@@ -1,62 +1,40 @@
 ﻿@model MoldeMVC_Core.Models.Pacientes
 
 @{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Detalle de paciente";
 }
 
-<h1>Details</h1>
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Detalle de paciente</h5>
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-4 align-items-start">
+            <div class="col-md-3 text-center">
+                <img src="/imaganes/pacientes/@(string.IsNullOrWhiteSpace(Model.Foto) ? "default-user.png" : Model.Foto)"
+                     class="img-thumbnail shadow-sm" style="max-width:180px; object-fit:cover;" alt="@Model.Nombre" />
+            </div>
+            <div class="col-md-9">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Nombre</dt>
+                    <dd class="col-sm-9">@Model.Nombre</dd>
+                    <dt class="col-sm-3">Cédula</dt>
+                    <dd class="col-sm-9">@Model.Cedula</dd>
+                    <dt class="col-sm-3">Edad</dt>
+                    <dd class="col-sm-9">@Model.Edad</dd>
+                    <dt class="col-sm-3">Género</dt>
+                    <dd class="col-sm-9">@Model.Genero</dd>
+                    <dt class="col-sm-3">Estatura</dt>
+                    <dd class="col-sm-9">@Model.Estatura cm</dd>
+                    <dt class="col-sm-3">Peso</dt>
+                    <dd class="col-sm-9">@Model.Peso kg</dd>
+                </dl>
+            </div>
+        </div>
 
-<div>
-    <h4>Pacientes</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.cedula)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.cedula)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.edad)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.edad)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.genero)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.genero)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.estatura)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.estatura)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.peso)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.peso)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.foto)
-        </dt>
-        <dd class = "col-sm-10">
-            @* @Html.DisplayFor(model => model.foto) *@
-            <img src="~/img/@Model.foto" alt="Foto de @Model.nombre" style="width:120px; height:120px; object-fit:cover; border-radius:8px;" />
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?._id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <div class="mt-4 d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning"><i class="bi bi-pencil"></i> Editar</a>
+            <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-list"></i> Volver</a>
+        </div>
+    </div>
 </div>

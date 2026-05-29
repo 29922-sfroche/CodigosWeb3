@@ -1,65 +1,69 @@
 @model IEnumerable<MoldeMVC_Core.Models.Consultas>
 
+@using System.Globalization
+
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Consultas";
 }
 
-<h1>Index</h1>
+@functions {
+    private static string FormatearHora(string? hora)
+    {
+        if (string.IsNullOrWhiteSpace(hora))
+        {
+            return "-";
+        }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.medicoId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.pacienteId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.fechaConsulta)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.hi)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.hf)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.diagnostico)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.medicoId)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.pacienteId)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.fechaConsulta)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.hi)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.hf)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.diagnostico)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item._id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item._id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item._id">Delete</a>
-            </td>
-        </tr>
+        var formatos = new[] { "HH:mm:ss", "HH:mm", "h:mm tt", "hh:mm tt" };
+        if (DateTime.TryParseExact(hora, formatos, CultureInfo.GetCultureInfo("en-US"), DateTimeStyles.None, out var fecha))
+        {
+            return fecha.ToString("h:mm tt", CultureInfo.GetCultureInfo("en-US"));
+        }
+
+        return hora;
+    }
 }
-    </tbody>
-</table>
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+    <div>
+        <h2 class="mb-0 text-primary fw-bold">Consultas</h2>
+        <p class="text-muted mb-0">Gestión de citas y diagnósticos</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nueva consulta</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-primary">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Médico</th>
+                    <th>Paciente</th>
+                    <th>Hora Inicio</th>
+                    <th>Hora Fin</th>
+                    <th>Diagnóstico</th>
+                    <th class="text-center" style="width:160px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FechaConsulta.ToString("dd/MM/yyyy")</td>
+                    <td>@(item.MedicoNombre ?? "-")</td>
+                    <td>@(item.PacienteNombre ?? "-")</td>
+                    <td>@FormatearHora(item.Hi)</td>
+                    <td>@FormatearHora(item.Hf)</td>
+                    <td>@item.Diagnostico</td>
+                    <td class="text-center">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white"><i class="bi bi-eye"></i></a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

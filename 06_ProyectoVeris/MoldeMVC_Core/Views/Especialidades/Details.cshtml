@@ -1,45 +1,67 @@
 @model MoldeMVC_Core.Models.Especialidades
 
+@using System.Globalization
+
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalle de especialidad";
 }
 
-<h1>Details</h1>
+@functions {
+    private static string NombreDia(char dia) => dia switch
+    {
+        'L' => "Lunes",
+        'M' => "Martes",
+        'X' => "Miércoles",
+        'J' => "Jueves",
+        'V' => "Viernes",
+        'S' => "Sábado",
+        _ => dia.ToString()
+    };
 
-<div>
-    <h4>Especialidades</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.descripcion)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.dias)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.dias)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.franjaHI)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.franjaHI)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.franjaHF)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.franjaHF)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?._id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    private static string FormatearHora(string? hora)
+    {
+        if (string.IsNullOrWhiteSpace(hora))
+        {
+            return "-";
+        }
+
+        var formatos = new[] { "HH:mm:ss", "HH:mm", "h:mm tt", "hh:mm tt" };
+        if (DateTime.TryParseExact(hora, formatos, CultureInfo.GetCultureInfo("en-US"), DateTimeStyles.None, out var fecha))
+        {
+            return fecha.ToString("h:mm tt", CultureInfo.GetCultureInfo("en-US"));
+        }
+
+        return hora;
+    }
+}
+
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Detalle de especialidad</h5>
+    </div>
+    <div class="card-body p-4">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Especialidad</dt>
+            <dd class="col-sm-9">@Model.Descripcion</dd>
+
+            <dt class="col-sm-3">Días</dt>
+            <dd class="col-sm-9">
+                @foreach (var dia in Model.Dias ?? string.Empty)
+                {
+                    <span class="badge bg-primary me-1">@NombreDia(dia)</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">Hora Inicio</dt>
+            <dd class="col-sm-9">@FormatearHora(Model.FranjaHI)</dd>
+
+            <dt class="col-sm-3">Hora Fin</dt>
+            <dd class="col-sm-9">@FormatearHora(Model.FranjaHF)</dd>
+        </dl>
+
+        <div class="mt-4 d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning"><i class="bi bi-pencil"></i> Editar</a>
+            <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-list"></i> Volver</a>
+        </div>
+    </div>
 </div>

@@ -1,10 +1,10 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoldeMVC_Core.Data;
 using MoldeMVC_Core.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Linq;
 
 public class MedicamentosController : Controller
 {
@@ -19,29 +19,31 @@ public class MedicamentosController : Controller
     public async Task<IActionResult> Index()
     {
         var medicamentos = await _context.Medicamentos
-                .Find(Builders<Medicamentos>.Filter.Empty)
-                .ToListAsync();
+            .Find(Builders<Medicamentos>.Filter.Empty)
+            .SortBy(m => m.Nombre)
+            .ToListAsync();
+
         return View(medicamentos);
     }
 
     // GET: MEDICAMENTOSS/Details/5
     public async Task<IActionResult> Details(string id)
     {
-
         if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
         {
             return NotFound();
         }
 
-        var medicamentos = await _context.Medicamentos
-            .Find(m => m._id == id)
+        var medicamento = await _context.Medicamentos
+            .Find(m => m.Id == id)
             .FirstOrDefaultAsync();
 
-        if (medicamentos == null)
+        if (medicamento == null)
         {
             return NotFound();
         }
-        return View(medicamentos);
+
+        return View(medicamento);
     }
 
     // GET: MEDICAMENTOSS/Create
@@ -51,15 +53,11 @@ public class MedicamentosController : Controller
     }
 
     // POST: MEDICAMENTOSS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("nombre,tipo")] Medicamentos medicamentos)
+    public async Task<IActionResult> Create(Medicamentos medicamentos)
     {
-        medicamentos._id = ObjectId.GenerateNewId().ToString();
-
-        ModelState.Remove("_id");
+        medicamentos.Id = ObjectId.GenerateNewId().ToString();
 
         if (!ModelState.IsValid)
         {
@@ -68,15 +66,13 @@ public class MedicamentosController : Controller
 
         try
         {
-            // Validar medicamento, que no exista otro con el mismo nombre y tipo
-
             var existeMedicamento = await _context.Medicamentos
-                .Find(p => p.nombre == medicamentos.nombre && p.tipo == medicamentos.tipo)
+                .Find(p => p.Nombre == medicamentos.Nombre && p.Tipo == medicamentos.Tipo)
                 .AnyAsync();
 
             if (existeMedicamento)
             {
-                ModelState.AddModelError("nombre", "Ya existe un medicamento registrado con este nombre y tipo.");
+                ModelState.AddModelError(nameof(Medicamentos.Nombre), "Ya existe un medicamento registrado con este nombre y tipo.");
                 return View(medicamentos);
             }
 
@@ -85,12 +81,12 @@ public class MedicamentosController : Controller
         }
         catch (MongoWriteException ex)
         {
-            ModelState.AddModelError("", "Error al guardar en MongoDB: " + ex.Message);
+            ModelState.AddModelError(string.Empty, "Error al guardar en MongoDB: " + ex.Message);
             return View(medicamentos);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", "Error inesperado: " + ex.Message);
+            ModelState.AddModelError(string.Empty, "Error inesperado: " + ex.Message);
             return View(medicamentos);
         }
     }
@@ -103,36 +99,32 @@ public class MedicamentosController : Controller
             return NotFound();
         }
 
-        var medicamentos = await _context.Medicamentos
-            .Find(m => m._id == id)
+        var medicamento = await _context.Medicamentos
+            .Find(m => m.Id == id)
             .FirstOrDefaultAsync();
 
-        if (medicamentos == null)
+        if (medicamento == null)
         {
             return NotFound();
         }
 
-        return View(medicamentos);
+        return View(medicamento);
     }
 
     // POST: MEDICAMENTOSS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, [Bind("nombre,tipo")] Medicamentos medicamentos)
+    public async Task<IActionResult> Edit(string id, Medicamentos medicamentos)
     {
         if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
         {
             return NotFound();
         }
 
-        if (id != medicamentos._id)
+        if (id != medicamentos.Id)
         {
             return NotFound();
         }
-
-        ModelState.Remove("_id");
 
         if (!ModelState.IsValid)
         {
@@ -141,22 +133,18 @@ public class MedicamentosController : Controller
 
         try
         {
-
-            // Validar medicamento, que no exista otro con el mismo nombre y tipo
-
             var existeMedicamento = await _context.Medicamentos
-                .Find(p => p.nombre == medicamentos.nombre && p.tipo == medicamentos.tipo)
+                .Find(p => p.Nombre == medicamentos.Nombre && p.Tipo == medicamentos.Tipo && p.Id != id)
                 .AnyAsync();
 
             if (existeMedicamento)
             {
-                ModelState.AddModelError("nombre", "Ya existe un medicamento registrado con este nombre y tipo.");
+                ModelState.AddModelError(nameof(Medicamentos.Nombre), "Ya existe un medicamento registrado con este nombre y tipo.");
                 return View(medicamentos);
             }
 
-
             var resultado = await _context.Medicamentos
-                .ReplaceOneAsync(p => p._id == id, medicamentos);
+                .ReplaceOneAsync(p => p.Id == id, medicamentos);
 
             if (resultado.MatchedCount == 0)
             {
@@ -167,15 +155,14 @@ public class MedicamentosController : Controller
         }
         catch (MongoWriteException ex)
         {
-            ModelState.AddModelError("", "Error al actualizar en MongoDB: " + ex.Message);
+            ModelState.AddModelError(string.Empty, "Error al actualizar en MongoDB: " + ex.Message);
             return View(medicamentos);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", "Error inesperado: " + ex.Message);
+            ModelState.AddModelError(string.Empty, "Error inesperado: " + ex.Message);
             return View(medicamentos);
         }
-        
     }
 
     // GET: MEDICAMENTOSS/Delete/5
@@ -186,16 +173,16 @@ public class MedicamentosController : Controller
             return NotFound();
         }
 
-        var medicamentos = await _context.Medicamentos
-            .Find(m => m._id == id)
+        var medicamento = await _context.Medicamentos
+            .Find(m => m.Id == id)
             .FirstOrDefaultAsync();
 
-        if (medicamentos == null)
+        if (medicamento == null)
         {
             return NotFound();
         }
 
-        return View(medicamentos);
+        return View(medicamento);
     }
 
     // POST: MEDICAMENTOSS/Delete/5
@@ -209,7 +196,7 @@ public class MedicamentosController : Controller
         }
 
         var resultado = await _context.Medicamentos
-            .DeleteOneAsync(p => p._id == id);
+            .DeleteOneAsync(p => p.Id == id);
 
         if (resultado.DeletedCount == 0)
         {
@@ -218,5 +205,4 @@ public class MedicamentosController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-
 }

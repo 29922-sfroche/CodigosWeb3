@@ -1,4 +1,6 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -9,12 +11,71 @@ namespace MoldeMVC_Core.Models
         [Key]
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string _id { get; set; } = default!;
+        public string? Id { get; set; }
+
+        [BsonIgnore]
+        [BindNever]
+        [ValidateNever]
+        public string? _id
+        {
+            get => Id;
+            set => Id = value;
+        }
+
+        [Required(ErrorMessage = "Debe seleccionar una consulta.")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string consultaId { get; set; } = default!;
+        [Display(Name = "Consulta")]
+        [BsonElement("consultaId")]
+        public string ConsultaId { get; set; } = default!;
+
+        [BsonIgnore]
+        [BindNever]
+        [ValidateNever]
+        public string? consultaId
+        {
+            get => ConsultaId;
+            set => ConsultaId = value;
+        }
+
+        [Required(ErrorMessage = "Debe seleccionar un medicamento.")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string medicamentoId { get; set; } = default!;
-        public int cantidad { get; set; } = default!;
+        [Display(Name = "Medicamento")]
+        [BsonElement("medicamentoId")]
+        public string MedicamentoId { get; set; } = default!;
+
+        [BsonIgnore]
+        [BindNever]
+        [ValidateNever]
+        public string? medicamentoId
+        {
+            get => MedicamentoId;
+            set => MedicamentoId = value;
+        }
+
+        [Required(ErrorMessage = "La cantidad es obligatoria.")]
+        [Range(1, 999, ErrorMessage = "La cantidad debe ser entre 1 y 999.")]
+        [Display(Name = "Cantidad")]
+        [BsonElement("cantidad")]
+        public int Cantidad { get; set; }
+
+        [BsonIgnore]
+        [BindNever]
+        [ValidateNever]
+        public int cantidad
+        {
+            get => Cantidad;
+            set => Cantidad = value;
+        }
+
+        [BsonIgnore]
+        [BindNever]
+        [ValidateNever]
+        public string? MedicamentoNombre { get; set; }
+
+        [BsonIgnore]
+        [BindNever]
+        [ValidateNever]
+        public string? ConsultaDescripcion { get; set; }
 
     }
 }
